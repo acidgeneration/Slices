@@ -58,7 +58,7 @@ if (-not (Test-Path "wget.exe")) {
     Download-File -Url $wgetUrl -Output $wgetZip
     Expand-Archive -Path $wgetZip -DestinationPath $tempDir
     
-    $wgetExe = Join-Path $tempDir "wget-1.21.4-win64\wget.exe"
+    $wgetExe = Join-Path $tempDir "wget.exe"
     if (Test-Path $wgetExe) {
         Copy-Item -Path $wgetExe -Destination "wget.exe" -Force
         Write-Host "Wget 1.21.4 установлен"
