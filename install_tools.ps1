@@ -28,7 +28,7 @@ $tempDir = Join-Path -Path $PWD -ChildPath "temp_extract"
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 New-Item -Path $tempDir -ItemType Directory | Out-Null
 
-# 1. Установка Pandoc (ваша ссылка)
+# 1. Установка Pandoc (исправленный путь)
 if (-not (Test-Path "pandoc.exe")) {
     Write-Host "Установка Pandoc..."
     $pandocUrl = "https://github.com/pandoc-extras/pandoc-portable/releases/download/2.0.3/pandoc-2.0.3-windows.zip"
@@ -37,19 +37,19 @@ if (-not (Test-Path "pandoc.exe")) {
     Download-File -Url $pandocUrl -Output $pandocZip
     Expand-Archive -Path $pandocZip -DestinationPath $tempDir
     
-    # Путь внутри архива (проверено)
-    $pandocExe = Join-Path $tempDir "pandoc-2.0.3\pandoc.exe"
+    # Исправленный путь к exe
+    $pandocExe = Join-Path $tempDir "pandoc-2.0.3-windows\pandoc.exe"
     if (Test-Path $pandocExe) {
         Copy-Item -Path $pandocExe -Destination "pandoc.exe" -Force
         Write-Host "Pandoc 2.0.3 установлен"
     } else {
-        Write-Host "Ошибка: pandoc.exe не найден в архиве!"
+        Write-Host "Ошибка: pandoc.exe не найден по пути: $pandocExe"
         exit 1
     }
     Remove-Item $pandocZip -Force
 }
 
-# 2. Установка Wget (ваша ссылка)
+# 2. Установка Wget
 if (-not (Test-Path "wget.exe")) {
     Write-Host "Установка Wget..."
     $wgetUrl = "https://eternallybored.org/misc/wget/releases/wget-1.21.4-win64.zip"
@@ -58,7 +58,6 @@ if (-not (Test-Path "wget.exe")) {
     Download-File -Url $wgetUrl -Output $wgetZip
     Expand-Archive -Path $wgetZip -DestinationPath $tempDir
     
-    # Путь внутри архива (проверено)
     $wgetExe = Join-Path $tempDir "wget-1.21.4-win64\wget.exe"
     if (Test-Path $wgetExe) {
         Copy-Item -Path $wgetExe -Destination "wget.exe" -Force
@@ -70,29 +69,15 @@ if (-not (Test-Path "wget.exe")) {
     Remove-Item $wgetZip -Force
 }
 
-# 3. Установка yt-dlp (ваша ссылка)
+# 3. Установка yt-dlp (исправленная ссылка)
 if (-not (Test-Path "yt-dlp.exe")) {
     Write-Host "Установка yt-dlp..."
-    $ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.02.19/yt-dlp_win.zip"
-    $ytDlpZip = "yt-dlp.zip"
+    $ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
     
-    Download-File -Url $ytDlpUrl -Output $ytDlpZip
-    Expand-Archive -Path $ytDlpZip -DestinationPath $tempDir
-    
-    # Путь внутри архива (проверено)
-    $ytDlpExe = Join-Path $tempDir "yt-dlp.exe"
-    if (Test-Path $ytDlpExe) {
-        Copy-Item -Path $ytDlpExe -Destination "yt-dlp.exe" -Force
-        Write-Host "yt-dlp установлен"
-    } else {
-        Write-Host "Ошибка: yt-dlp.exe не найден в архиве!"
-        exit 1
-    }
-    Remove-Item $ytDlpZip -Force
+    Download-File -Url $ytDlpUrl -Output "yt-dlp.exe"
+    Write-Host "yt-dlp установлен"
 }
 
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 
 Write-Host "`n=== ВСЕ КОМПОНЕНТЫ УСПЕШНО УСТАНОВЛЕНЫ ==="
-Write-Host "Доступные утилиты:"
-Get-ChildItem *.exe | Select-Object Name, @{n="Версия";e={$_.VersionInfo.FileVersion}}
