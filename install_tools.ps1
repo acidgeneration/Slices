@@ -28,7 +28,7 @@ $tempDir = Join-Path -Path $PWD -ChildPath "temp_extract"
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 New-Item -Path $tempDir -ItemType Directory | Out-Null
 
-# 1. Установка Pandoc (исправленный путь)
+# 1. Установка Pandoc
 if (-not (Test-Path "pandoc.exe")) {
     Write-Host "Установка Pandoc..."
     $pandocUrl = "https://github.com/pandoc-extras/pandoc-portable/releases/download/2.0.3/pandoc-2.0.3-windows.zip"
@@ -37,13 +37,13 @@ if (-not (Test-Path "pandoc.exe")) {
     Download-File -Url $pandocUrl -Output $pandocZip
     Expand-Archive -Path $pandocZip -DestinationPath $tempDir
     
-    # Исправленный путь к exe
     $pandocExe = Join-Path $tempDir "pandoc-2.0.3-windows\pandoc.exe"
     if (Test-Path $pandocExe) {
         Copy-Item -Path $pandocExe -Destination "pandoc.exe" -Force
         Write-Host "Pandoc 2.0.3 установлен"
     } else {
-        Write-Host "Ошибка: pandoc.exe не найден по пути: $pandocExe"
+        Write-Host "Ошибка: pandoc.exe не найден!"
+        Get-ChildItem -Path $tempDir -Recurse | Select-Object FullName
         exit 1
     }
     Remove-Item $pandocZip -Force
@@ -63,13 +63,14 @@ if (-not (Test-Path "wget.exe")) {
         Copy-Item -Path $wgetExe -Destination "wget.exe" -Force
         Write-Host "Wget 1.21.4 установлен"
     } else {
-        Write-Host "Ошибка: wget.exe не найден в архиве!"
+        Write-Host "Ошибка: wget.exe не найден!"
+        Get-ChildItem -Path $tempDir -Recurse | Select-Object FullName
         exit 1
     }
     Remove-Item $wgetZip -Force
 }
 
-# 3. Установка yt-dlp (исправленная ссылка)
+# 3. Установка yt-dlp
 if (-not (Test-Path "yt-dlp.exe")) {
     Write-Host "Установка yt-dlp..."
     $ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
@@ -78,6 +79,11 @@ if (-not (Test-Path "yt-dlp.exe")) {
     Write-Host "yt-dlp установлен"
 }
 
+# Очистка временных файлов
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 
-Write-Host "`n=== ВСЕ КОМПОНЕНТЫ УСПЕШНО УСТАНОВЛЕНЫ ==="
+Write-Host "`n============================================"
+Write-Host " ВСЕ КОМПОНЕНТЫ УСПЕШНО УСТАНОВЛЕНЫ"
+Write-Host " Доступные утилиты:"
+Get-ChildItem *.exe | Select-Object Name, @{n="Размер";e={"{0:N1} MB" -f ($_.Length/1MB)}}
+Write-Host "============================================"
